@@ -1,10 +1,34 @@
-from app.repositories.unit_repository import UnitRepository
+from app.models.unit import Unit
+from app.db.database import db_session
+from app.schemas.unit import UnitCreate, UnitUpdate
 
 class UnitService:
-    def __init__(self, repository: UnitRepository):
-        self.repository = repository
+    @staticmethod
+    def create_unit(data: UnitCreate):
+        unit = Unit(**data.dict())
+        with db_session() as session:
+            session.add(unit)
+            session.commit()
+            session.refresh(unit)
+        return unit
 
-    def create_unit(self, name: str):
-        if self.repository.get_unit_by_name(name):
-            raise ValueError(f"Unit with name {name} already exists.")
-        return self.repository.create_unit(name)
+    @staticmethod
+    def get_unit(unit_id: str):
+        with db_session() as session:
+            return session.query(Unit).filter(Unit.id == unit_id).first()
+
+    @staticmethod
+    def list_units():
+        with db_session() as session:
+            return session.query(Unit).all()
+
+    @staticmethod
+    def update_unit(unit_id: str, data: UnitUpdate):
+        with db_session() as session:
+            unit = session.query(Unit).filter(Unit.id == unit_id).first()
+            if not unit:
+                return None
+            for key, value in data.dict(exclude_unset=True).items():
+                setattr(unit, key, value)
+            session.commit()
+            return unit
