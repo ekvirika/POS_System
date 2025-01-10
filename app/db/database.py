@@ -1,12 +1,34 @@
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
+from typing import Iterator
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
-DATABASE_URL = "sqlite:///./pos.db"
+# SQLite database URL
+# DATABASE_URL = "sqlite:///./app.db"
+DATABASE_URL = "sqlite:///:memory:"
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+# Create the SQLAlchemy engine
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False}  # Only needed for SQLite
+)
+
+# Create a configured "Session" class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Create a declarative base
 Base = declarative_base()
 
-def init_db():
-    Base.metadata.create_all(bind=engine)
+# Dependency: Provide a session to use in services
+@contextmanager
+def db_session() -> Iterator[Session]:
+    session: Session = SessionLocal()
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()

@@ -1,8 +1,8 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, Integer, String
 from app.db.database import Base
 
 class Unit(Base):
-    __tablename__ = "units"
+    __tablename__ = 'units'
 
-    id = Column(String, primary_key=True)
-    name = Column(String, unique=True, nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)

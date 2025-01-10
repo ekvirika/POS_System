@@ -1,5 +1,7 @@
-from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy import Column, DateTime, Integer, String
+
 from app.db.database import Base
+
 
 class Receipt(Base):
     __tablename__ = "receipts"
