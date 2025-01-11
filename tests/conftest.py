@@ -4,7 +4,7 @@ from app.main import create_app
 from app.db.database import Base, engine, SessionLocal
 
 @pytest.fixture(scope="module")
-def test_app():
+def test_app() -> None:
     """
     Fixture to create a FastAPI test application with a fresh database.
     """
@@ -14,7 +14,7 @@ def test_app():
     Base.metadata.drop_all(bind=engine)  # Drop tables after tests
 
 @pytest.fixture(scope="function")
-def db_session():
+def db_session() -> None:
     """
     Fixture to provide a fresh database session for each test.
     """

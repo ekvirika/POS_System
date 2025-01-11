@@ -1,12 +1,11 @@
-# from fastapi.testclient import TestClient
-#
-# from app.main import app
-#
-# client = TestClient(app)
-#
-# def test_get_sales_report():
-#     response = client.get("/sales")
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert data["n_receipts"] == 0
-#     assert data["revenue"] == 0
+def test_sales_report(test_app):
+    # Create two receipts and close them
+    for _ in range(2):
+        receipt_response = test_app.post("/receipts")
+        receipt_id = receipt_response.json()["receipt"]["id"]
+        test_app.patch(f"/receipts/{receipt_id}", json={"status": "closed"})
+
+    # Get sales report
+    response = test_app.get("/sales")
+    assert response.status_code == 200
+    assert response.json()["sales"]["n_receipts"] == 2
